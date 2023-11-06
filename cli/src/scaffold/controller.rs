@@ -1,7 +1,7 @@
-use convert_case::{Case, Casing};
 use cali_core::protos::parser::get_proto_data;
 use cali_core::protos::parser::ProtoData;
 use cali_core::protos::parser::ProtoService;
+use convert_case::{Case, Casing};
 use proc_macro2::{Ident, LineColumn};
 use std::{fs::File, io::Write, path::Path};
 use syn::ImplItemFn;

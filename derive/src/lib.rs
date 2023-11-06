@@ -1,8 +1,8 @@
 extern crate proc_macro;
 use std::path::Path;
 
-use convert_case::{Case, Casing};
 use cali_core::protos::parser::get_proto_data;
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::quote;
@@ -220,7 +220,7 @@ pub fn setup_server(input: TokenStream) -> TokenStream {
             );
 
             quote! {
-                .add_service(#web_crate::protos::#controller_snake_name::#server_snake_name::#service_name::new(#controller_var_name))
+                .add_service(#web_crate::protos::#controller_snake_name::#server_snake_name::#service_name::with_interceptor(#controller_var_name, intercept))
             }
         })
         .collect();
@@ -283,11 +283,18 @@ pub fn setup_server(input: TokenStream) -> TokenStream {
         let (host, port) = cali_core::helpers::split_host_and_port(&config.bind_address);
         let addr = format!("{}:{}", host, port);
 
+        fn intercept(mut req: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
+            println!("Intercepting request: {:?}", req);
+
+            Ok(req)
+        }
+
         let server = tonic::transport::Server::builder()
             .layer(context_layer)
             #(#services)*;
 
-        log::info!("GRPC server started, waiting for requests...");
+        let logger_message = format!("GRPC server started on addr: {}, waiting for requests...", addr);
+        log::info!("GRPC server had started on address: {}, waiting for requests...", addr);
         let mut interrupt_signal = tokio::signal::ctrl_c();
         let closer = async move {
             let _ = interrupt_signal.await;
