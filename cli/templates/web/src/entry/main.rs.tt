@@ -2,6 +2,7 @@ use {name}_web::config::Config;
 use cali_derive::setup_server;
 use std::\{error::Error, str::FromStr};
 use std::sync::Arc;
+use tonic::{Request, Status};
 
 #[derive(Debug, Clone)]
 pub struct ServerContext \{}
